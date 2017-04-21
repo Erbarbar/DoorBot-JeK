@@ -39,27 +39,23 @@ app.post('/', function(req, res, next){
   // make sure there are no message loops, and only one user is being timed
   if(userName === 'slackbot' || userName === 'Door' || startTime != 0 || tok !== token){
     console.log('YOU SHALL NOT PASS!\n');
-    console.log(tok);
-    console.log(token);
     return res.status(200).end();
   } else {
     // Turn on red LED (TODO: sound buzzer)
-    OnDoorCall('channel', userName);
+    var chosen = OnDoorCall('test', userName);
   	
     // checks if button was pressed in 60ms intervals
     firstButtonPressCheck = setInterval(function() {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
   			
-        OnFirstButtonPress();
+        OnFirstButtonPress(userName,chosen);
   	
         // checks if button was released in 60ms intervals
         firstButtonReleaseCheck = setInterval(function() {
           if (gpio27.value == 0) {
             clearInterval(firstButtonReleaseCheck);
             console.log('Button release');
-            // at this time, the user should be on his way to get the door
-            sendMessage('ON MY WAY!');
             secondButtonPressCheck = setInterval(function() {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck);  
@@ -101,9 +97,14 @@ function sendMessage(msgChannel, msgText) {
 }
 
 function pickRandom(department) {
-  department = test;
+  console.log('===PICK RANDOM===');
+  console.log(department);
   var members = JSON.parse(fs.readFileSync('members/' + department + '.json', 'utf8'));
-  return members[Math.round(Math.random() * members.length)];
+  console.log(members);
+  var chosenOne = members[Math.floor(Math.random() * members.length)];
+  console.log(chosenOne);
+  console.log('===END===');
+  return chosenOne;
 };
 
 // flashing lights if led is on GPIO4
@@ -143,12 +144,14 @@ function OnDoorCall(callerChannel, callerName){
 
   // get a random user
   var username = pickRandom(callerChannel);
-  var channel = '#' + username;
+  console.log('Messaging: ' + callerChannel);
+  var channel = '@' + username;
   var message = '@' + callerName + ' pede que abras a porta, por favor!';
   sendMessage(channel,message);
+  return username;
 }
 
-function OnFirstButtonPress() {
+function OnFirstButtonPress(requester, buttonPresser) {
   console.log('First button press!');
 
   // Green OFF
@@ -158,6 +161,11 @@ function OnFirstButtonPress() {
   // start the timer
   startTime = getTime();
   console.log('start time = ' + startTime);
+
+  // at this time, the user should be on his way to get the door
+  var msgChannel = '@' + requester;
+  var msgText = '@' + buttonPresser + ' esta a caminho!';
+  sendMessage(msgChannel,msgText);
 }
 
 function OnSecondButtonPress() {
