@@ -49,8 +49,8 @@ app.post('/', function(req, res, next) {
     firstButtonPressCheck = setInterval(function() {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
-        
-        console.log('BUTTON -> press');
+
+        console.log('\nBUTTON -> press');
         OnFirstButtonPress(requesterName,chosenName);
     
         // checks if button was released in 60ms intervals
@@ -65,7 +65,7 @@ app.post('/', function(req, res, next) {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck); 
 
-                console.log('BUTTON -> press');
+                console.log('\nBUTTON -> press');
                 OnSecondButtonPress(requesterName,chosenName);  
 
                 // checks if button was released in 60ms intervals
@@ -92,7 +92,8 @@ app.post('/', function(req, res, next) {
 function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
-    user_name:'HODOR',
+    username:'HODOR',
+    icon_url: "https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300"
     text:msgText
   }, function(err, response) {
     if(err === null)
