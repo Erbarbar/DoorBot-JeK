@@ -33,7 +33,7 @@ app.listen(port, function(){
 //===========================================================
 
 app.post('/', function(req, res, next) {
-  debug.log('recieved message!');
+  
   var requesterName = req.body.user_name;
   var channel = req.body.trigger_word;
   var tok = req.body.token;   
@@ -42,7 +42,7 @@ app.post('/', function(req, res, next) {
     console.log('YOU SHALL NOT PASS!\n');
     return res.status(200).end();
   } else {
-    debug.log('channel: ' + channel);
+    console.log('channel: ' + channel);
     // Turn on red LED (TODO: sound buzzer)
     var chosen = OnDoorCall('test', requesterName);
     
