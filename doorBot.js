@@ -50,7 +50,7 @@ app.post('/', function(req, res, next) {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
 
-        console.log('\nBUTTON -> press');
+        console.log('\nBUTTON -> press (1)');
         OnFirstButtonPress(requesterName,chosenName);
     
         // checks if button was released in 60ms intervals
@@ -58,14 +58,14 @@ app.post('/', function(req, res, next) {
           if (gpio27.value == 0) {
             clearInterval(firstButtonReleaseCheck);
 
-            console.log('BUTTON -> release');
+            console.log('BUTTON -> release (1)');
 
             // checks if button was pressed in 10ms intervals
             secondButtonPressCheck = setInterval(function() {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck); 
 
-                console.log('\nBUTTON -> press');
+                console.log('\nBUTTON -> press (2)');
                 OnSecondButtonPress(requesterName,chosenName);  
 
                 // checks if button was released in 60ms intervals
@@ -73,7 +73,7 @@ app.post('/', function(req, res, next) {
                   if (gpio27.value == 0) {
                     clearInterval(secondButtonReleaseCheck);
 
-                    console.log('BUTTON -> release');
+                    console.log('BUTTON -> release (2)');
                     startTime = 0;
                     endTime = 0;
                     return res.status(200).end();
@@ -93,7 +93,7 @@ function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
     username:'HODOR',
-    icon_url: "https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300",
+    icon_url: 'https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300',
     text:msgText
   }, function(err, response) {
     if(err === null)
@@ -148,7 +148,7 @@ function OnDoorCall(callerChannel, callerName){
   var chosenName = pickRandom(callerChannel);
   var channel = '@' + chosenName;
   var privateMessage = '@' + callerName + ' pede que abras a porta, por favor!';
-  var publicMessage = '@' + chosenName + ' é a tua vez de abrir a porta :grin:';
+  var publicMessage = '@' + chosenName + ' é a tua vez de abrir a porta :heart:';
   sendMessage(channel, privateMessage);
   sendMessage('#door-channel',publicMessage);
 
@@ -156,7 +156,6 @@ function OnDoorCall(callerChannel, callerName){
 }
 
 function OnFirstButtonPress(requester, buttonPresser) {
-  console.log('First button press!');
 
   // Green OFF
   gpio17.set(0);
@@ -173,8 +172,6 @@ function OnFirstButtonPress(requester, buttonPresser) {
 }
 
 function OnSecondButtonPress(requesterName, chosenName) {
-
-  console.log('Second button press!');
 
   // stop the timer
   endTime = getTime();
