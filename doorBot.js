@@ -42,7 +42,6 @@ app.post('/', function(req, res, next) {
     console.log('YOU SHALL NOT PASS!\n');
     return res.status(200).end();
   } else {
-    console.log('channel: ' + channel);
     // Turn on red LED (TODO: sound buzzer)
     var chosenName = OnDoorCall(channel, requesterName);
     
@@ -57,18 +56,17 @@ app.post('/', function(req, res, next) {
         firstButtonReleaseCheck = setInterval(function() {
           if (gpio27.value == 0) {
             clearInterval(firstButtonReleaseCheck);
-            console.log('Button release');
+            console.log('BUTTON -> release');
             secondButtonPressCheck = setInterval(function() {
               if (gpio27.value == 1) {
-                clearInterval(secondButtonPressCheck);  
-                OnSecondButtonPress(requesterName,chosenName);  
+                clearInterval(secondButtonPressCheck); 
+                var messageSent = OnSecondButtonPress(requesterName,chosenName);  
 
                 // checks if button was released in 60ms intervals
                 secondButtonReleaseCheck = setInterval(function() {
-                  if (gpio27.value == 0) {
+                  if (gpio27.value == 0 && messageSent == true) {
                     clearInterval(secondButtonReleaseCheck);
-                    console.log('====================\n');
-                    // send message to slack
+                    console.log('========== END ==========\n');
 
                     return res.status(200).end();
                   }
@@ -89,7 +87,14 @@ function sendMessage(msgChannel, msgText) {
     user_name:'HODOR',
     text:msgText
   }, function(err, response) {
-    console.log('[MESSAGE]\n' + msgChannel + ' -> ' + msgText);
+    if(err === null){
+      console.log('[MESSAGE]\n' + msgChannel + ' -> ' + msgText);
+
+      return true;
+    } else {
+      return false;
+    }
+
   });
 }
 
@@ -97,6 +102,7 @@ function pickRandom(department) {
   var members = JSON.parse(fs.readFileSync('members/' + department + '.json', 'utf8'));
   var chosenOne = members[Math.floor(Math.random() * members.length)];
   console.log('pickRandom -> ' + chosenOne);
+
   return chosenOne;
 };
 
@@ -142,6 +148,7 @@ function OnDoorCall(callerChannel, callerName){
   var publicMessage = '@' + chosenName + ' é a tua vez de abrir a porta :grin:';
   sendMessage(channel, privateMessage);
   sendMessage('#door-channel',publicMessage);
+
   return chosenName;
 }
 
@@ -174,7 +181,8 @@ function OnSecondButtonPress(requesterName, chosenName) {
   var timeString = getTimeString(deltaTime);
 
   var publicMessage = '@' + chosenName + ' abriu a porta em ' + timeString + '!';
-  sendMessage('#door-channel',publicMessage);
+
+  return sendMessage('#door-channel',publicMessage);
 }
 
 function getDeltaTime() {
@@ -183,11 +191,13 @@ function getDeltaTime() {
   startTime = 0;
   endTime = 0;
   console.log(deltaTime);
+
   return deltaTime;
 }
 
 function getTime() {
   var date = Date.now();
+  
   return (date);
 }
 
