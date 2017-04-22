@@ -93,7 +93,7 @@ app.post('/', function(req, res, next) {
 
 function updateScore(playerName, playerScore){
   var highScore;
-  var scores = JSON.parse(fs.readFileSync('highScoresFile.json', 'utf8'));
+  var scores = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
   if (scores.hasOwnProperty(playerName)){
     highScore = scores[playerName];
     console.log('{name: '+ scores.playerName + ', score: ' + scores[playerName]);
