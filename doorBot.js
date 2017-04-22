@@ -44,14 +44,14 @@ app.post('/', function(req, res, next) {
   } else {
     console.log('channel: ' + channel);
     // Turn on red LED (TODO: sound buzzer)
-    var chosen = OnDoorCall(channel, requesterName);
+    var chosenName = OnDoorCall(channel, requesterName);
     
     // checks if button was pressed in 60ms intervals
     firstButtonPressCheck = setInterval(function() {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
         
-        OnFirstButtonPress(requesterName,chosen);
+        OnFirstButtonPress(requesterName,chosenName);
     
         // checks if button was released in 60ms intervals
         firstButtonReleaseCheck = setInterval(function() {
@@ -61,9 +61,7 @@ app.post('/', function(req, res, next) {
             secondButtonPressCheck = setInterval(function() {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck);  
-                OnSecondButtonPress();  
-                var deltaTime = getDeltaTime();
-                var timeString = getTimeString(deltaTime);
+                OnSecondButtonPress(requesterName,chosenName);  
   
                 var botPayLoad = {
                   text: 'Conseguiste um tempo de ' + timeString + '!'
@@ -73,9 +71,10 @@ app.post('/', function(req, res, next) {
                 secondButtonReleaseCheck = setInterval(function() {
                   if (gpio27.value == 0) {
                     clearInterval(secondButtonReleaseCheck);
-                    console.log('Second release\n');
+                    console.log('====================\n');
                     // send message to slack
-                    return res.status(200).json(botPayLoad);
+
+                    return res.status(200).json(end);
                   }
                 },60);
               }
@@ -167,13 +166,19 @@ function OnFirstButtonPress(requester, buttonPresser) {
   sendMessage(msgChannel,msgText);
 }
 
-function OnSecondButtonPress() {
+function OnSecondButtonPress(requesterName, chosenName) {
 
   console.log('Second button press!');
 
   // stop the timer
   endTime = getTime();
   console.log('end time = ' + endTime);
+
+  var deltaTime = getDeltaTime();
+  var timeString = getTimeString(deltaTime);
+
+  var publicMessage = '@' + chosenName + ' abriu a porta em ' + timeString + '!';
+  sendMessage('#door-channel',publicMessage);
 }
 
 function getDeltaTime() {
