@@ -32,7 +32,8 @@ app.listen(port, function(){
 
 //===========================================================
 
-app.post('/random/:department', function(req, res, next){
+app.post('/random/:department', function(req, res, next) {
+  debug.log('recieved message!');
   var requesterName = req.body.user_name;
   var channel = req.params.department;
   var tok = req.body.token;   
