@@ -32,25 +32,26 @@ app.listen(port, function(){
 
 //===========================================================
 
-app.post('/', function(req, res, next){
-  var userName = req.body.user_name;
-  //var channel = req.params.department;
-  var tok = req.body.token;		
+app.post('/random/:department', function(req, res, next){
+  var requesterName = req.body.user_name;
+  var channel = req.params.department;
+  var tok = req.body.token;   
   // make sure there are no message loops, and only one user is being timed
-  if(userName === 'slackbot' || userName === 'Door' || startTime != 0 || tok !== token){
+  if(requesterName === 'slackbot' || requesterName === 'Door' || startTime != 0 || tok !== token){
     console.log('YOU SHALL NOT PASS!\n');
     return res.status(200).end();
   } else {
+    debug.log('channel: ' + channel);
     // Turn on red LED (TODO: sound buzzer)
-    var chosen = OnDoorCall('test', userName);
-  	
+    var chosen = OnDoorCall('test', requesterName);
+    
     // checks if button was pressed in 60ms intervals
     firstButtonPressCheck = setInterval(function() {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
-  			
-        OnFirstButtonPress(userName,chosen);
-  	
+        
+        OnFirstButtonPress(requesterName,chosen);
+    
         // checks if button was released in 60ms intervals
         firstButtonReleaseCheck = setInterval(function() {
           if (gpio27.value == 0) {
@@ -82,14 +83,14 @@ app.post('/', function(req, res, next){
         },60);
       }
     },10);
-  }	
+  } 
 });
 
 
 function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
-    username:'HODOR',
+    requesterName:'HODOR',
     text:msgText
   }, function(err, response) {
     console.log(err);
@@ -143,12 +144,12 @@ function OnDoorCall(callerChannel, callerName){
   console.log('green on!');
 
   // get a random user
-  var username = pickRandom(callerChannel);
+  var requesterName = pickRandom(callerChannel);
   console.log('Messaging: ' + callerChannel);
-  var channel = '@' + username;
+  var channel = '@' + requesterName;
   var message = '@' + callerName + ' pede que abras a porta, por favor!';
   sendMessage(channel,message);
-  return username;
+  return requesterName;
 }
 
 function OnFirstButtonPress(requester, buttonPresser) {
@@ -177,7 +178,7 @@ function OnSecondButtonPress() {
   console.log('end time = ' + endTime);
 }
 
-var getDeltaTime = function() {
+function getDeltaTime() {
   // get diff time inseconds
   var deltaTime = (endTime - startTime)/1000; 
   startTime = 0;
