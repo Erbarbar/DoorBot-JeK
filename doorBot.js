@@ -33,7 +33,7 @@ app.listen(port, function(){
 //===========================================================
 
 app.post('/', function(req, res, next) {
-  
+
   var requesterName = req.body.user_name;
   var channel = req.body.trigger_word;
   var tok = req.body.token;   
@@ -44,7 +44,7 @@ app.post('/', function(req, res, next) {
   } else {
     console.log('channel: ' + channel);
     // Turn on red LED (TODO: sound buzzer)
-    var chosen = OnDoorCall('test', requesterName);
+    var chosen = OnDoorCall(channel, requesterName);
     
     // checks if button was pressed in 60ms intervals
     firstButtonPressCheck = setInterval(function() {
@@ -94,7 +94,7 @@ function sendMessage(msgChannel, msgText) {
     requesterName:'HODOR',
     text:msgText
   }, function(err, response) {
-    console.log(err);
+    //console.log(err);
   });
 }
 
