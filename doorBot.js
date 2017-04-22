@@ -45,29 +45,37 @@ app.post('/', function(req, res, next) {
     // Turn on red LED (TODO: sound buzzer)
     var chosenName = OnDoorCall(channel, requesterName);
     
-    // checks if button was pressed in 60ms intervals
+    // checks if button was pressed in 10ms intervals
     firstButtonPressCheck = setInterval(function() {
       if (gpio27.value == 1) { 
         clearInterval(firstButtonPressCheck);
         
+        console.log('BUTTON -> press');
         OnFirstButtonPress(requesterName,chosenName);
     
         // checks if button was released in 60ms intervals
         firstButtonReleaseCheck = setInterval(function() {
           if (gpio27.value == 0) {
             clearInterval(firstButtonReleaseCheck);
+
             console.log('BUTTON -> release');
+
+            // checks if button was pressed in 10ms intervals
             secondButtonPressCheck = setInterval(function() {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck); 
-                var messageSent = OnSecondButtonPress(requesterName,chosenName);  
+
+                console.log('BUTTON -> press');
+                OnSecondButtonPress(requesterName,chosenName);  
 
                 // checks if button was released in 60ms intervals
                 secondButtonReleaseCheck = setInterval(function() {
-                  if (gpio27.value == 0 && messageSent == true) {
+                  if (gpio27.value == 0) {
                     clearInterval(secondButtonReleaseCheck);
-                    console.log('========== END ==========\n');
 
+                    console.log('BUTTON -> release');
+                    startTime = 0;
+                    endTime = 0;
                     return res.status(200).end();
                   }
                 },60);
@@ -87,14 +95,8 @@ function sendMessage(msgChannel, msgText) {
     user_name:'HODOR',
     text:msgText
   }, function(err, response) {
-    if(err === null){
+    if(err === null)
       console.log('[MESSAGE]\n' + msgChannel + ' -> ' + msgText);
-
-      return true;
-    } else {
-      return false;
-    }
-
   });
 }
 
@@ -139,7 +141,7 @@ var gpio27 = gpio.export(27, {
 function OnDoorCall(callerChannel, callerName){
   // Green ON
   gpio17.set(1); 
-  console.log('green on!');
+  console.log('Gren LED -> ON');
 
   // get a random user
   var chosenName = pickRandom(callerChannel);
@@ -157,11 +159,11 @@ function OnFirstButtonPress(requester, buttonPresser) {
 
   // Green OFF
   gpio17.set(0);
-  console.log('green off!');
+  console.log('Gren LED -> OFF');
 
   // start the timer
   startTime = getTime();
-  console.log('start time = ' + startTime);
+  console.log('Start time -> ' + startTime);
 
   // at this time, the user should be on his way to get the door
   var msgChannel = '@' + requester;
@@ -175,11 +177,10 @@ function OnSecondButtonPress(requesterName, chosenName) {
 
   // stop the timer
   endTime = getTime();
-  console.log('end time = ' + endTime);
+  console.log('End time -> ' + endTime);
 
   var deltaTime = getDeltaTime();
   var timeString = getTimeString(deltaTime);
-
   var publicMessage = '@' + chosenName + ' abriu a porta em ' + timeString + '!';
 
   return sendMessage('#door-channel',publicMessage);
@@ -187,17 +188,15 @@ function OnSecondButtonPress(requesterName, chosenName) {
 
 function getDeltaTime() {
   // get diff time inseconds
-  var deltaTime = (endTime - startTime)/1000; 
-  startTime = 0;
-  endTime = 0;
-  console.log(deltaTime);
+  var deltaTime = (endTime - startTime)/1000;
+  console.log('Delta time -> ' + deltaTime);
 
   return deltaTime;
 }
 
 function getTime() {
   var date = Date.now();
-  
+
   return (date);
 }
 
