@@ -32,10 +32,10 @@ app.listen(port, function(){
 
 //===========================================================
 
-app.post('/door', function(req, res, next) {
+app.post('/', function(req, res, next) {
   debug.log('recieved message!');
   var requesterName = req.body.user_name;
-  var channel = req.params.department;
+  var channel = req.body.trigger_word;
   var tok = req.body.token;   
   // make sure there are no message loops, and only one user is being timed
   if(requesterName === 'slackbot' || requesterName === 'Door' || startTime != 0 || tok !== token){
