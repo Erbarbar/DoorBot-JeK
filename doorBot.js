@@ -62,10 +62,6 @@ app.post('/', function(req, res, next) {
               if (gpio27.value == 1) {
                 clearInterval(secondButtonPressCheck);  
                 OnSecondButtonPress(requesterName,chosenName);  
-  
-                var botPayLoad = {
-                  text: 'Conseguiste um tempo de ' + timeString + '!'
-                }
 
                 // checks if button was released in 60ms intervals
                 secondButtonReleaseCheck = setInterval(function() {
@@ -74,7 +70,7 @@ app.post('/', function(req, res, next) {
                     console.log('====================\n');
                     // send message to slack
 
-                    return res.status(200).json(end);
+                    return res.status(200).end();
                   }
                 },60);
               }
