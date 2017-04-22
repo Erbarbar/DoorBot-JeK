@@ -92,12 +92,17 @@ app.post('/', function(req, res, next) {
 });
 
 function updateScore(playerName, playerScore){
-  var newScore = {
-    name: playerName,
-    score: playerScore
+  var highScore;
+  var scores = JSON.parse(fs.readFileSync('highScoresFile.json', 'utf8'));
+  if (scores.hasOwnProperty(playerName)){
+    highScore = scores[playerName];
+    console.log('{name: '+ scores.playerName + ', score: ' + scores[playerName]);
+  } else {
+    scores.playerName = playerName;
+    scores[playerName] = playerScore;
   }
 
-  jsonfile.writeFile(highScoresFile,newScore, function(err){
+  jsonfile.writeFile(highScoresFile, scores, function(err){
     if (err)
       console.error(err);
   })
@@ -107,7 +112,6 @@ function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
     username:'HODOR',
-    icon_url: 'https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300',
     text:msgText
   }, function(err, response) {
     if(err === null)
