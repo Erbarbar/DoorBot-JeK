@@ -93,7 +93,7 @@ function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
     username:'HODOR',
-    icon_url: "https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300"
+    icon_url: "https://lh4.ggpht.com/0x63wTwtlvfvHG5J27m6RA9JyMRqdcZwaH_I57iyqh80BhxP-Ld9UN9n22sIybOjeA=w300",
     text:msgText
   }, function(err, response) {
     if(err === null)
