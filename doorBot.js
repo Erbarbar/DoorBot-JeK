@@ -91,21 +91,17 @@ app.post('/', function(req, res, next) {
 function sendMessage(msgChannel, msgText) {
   slack.webhook({
     channel:msgChannel,
-    requesterName:'HODOR',
+    user_name:'HODOR',
     text:msgText
   }, function(err, response) {
-    //console.log(err);
+    console.log('[MESSAGE]\n' + msgChannel + ' -> ' + msgText);
   });
 }
 
 function pickRandom(department) {
-  console.log('===PICK RANDOM===');
-  console.log(department);
   var members = JSON.parse(fs.readFileSync('members/' + department + '.json', 'utf8'));
-  console.log(members);
   var chosenOne = members[Math.floor(Math.random() * members.length)];
-  console.log(chosenOne);
-  console.log('===END===');
+  console.log('pickRandom -> ' + chosenOne);
   return chosenOne;
 };
 
@@ -145,12 +141,13 @@ function OnDoorCall(callerChannel, callerName){
   console.log('green on!');
 
   // get a random user
-  var requesterName = pickRandom(callerChannel);
-  console.log('Messaging: ' + callerChannel);
-  var channel = '@' + requesterName;
-  var message = '@' + callerName + ' pede que abras a porta, por favor!';
-  sendMessage(channel,message);
-  return requesterName;
+  var chosenName = pickRandom(callerChannel);
+  var channel = '@' + chosenName;
+  var privateMessage = '@' + callerName + ' pede que abras a porta, por favor!';
+  var publicMessage = '@' + chosenName + ' é a tua vez de abrir a porta :grin:';
+  sendMessage(channel, privateMessage);
+  sendMessage('#door-channel',publicMessage);
+  return chosenName;
 }
 
 function OnFirstButtonPress(requester, buttonPresser) {
@@ -166,7 +163,7 @@ function OnFirstButtonPress(requester, buttonPresser) {
 
   // at this time, the user should be on his way to get the door
   var msgChannel = '@' + requester;
-  var msgText = '@' + buttonPresser + ' esta a caminho!';
+  var msgText = '@' + buttonPresser + ' está a caminho!';
   sendMessage(msgChannel,msgText);
 }
 
