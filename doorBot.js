@@ -3,10 +3,12 @@ var bodyParser = require('body-parser');
 var gpio       = require('gpio');
 var Slack      = require('slack-node');
 var fs         = require('fs');
+var jsonfile   = require('jsonfile'); 
 
 var app = express();
 slack = new Slack();
 var port = 3000; // same port as ngrok
+var highScoresFile = 'HighScores.json';
 
 // number of milliseconds elapsed since 1 January 1970 
 var startTime = 0; // when the user is notified
@@ -66,7 +68,7 @@ app.post('/', function(req, res, next) {
                 clearInterval(secondButtonPressCheck); 
 
                 console.log('\nBUTTON -> press (2)');
-                OnSecondButtonPress(requesterName,chosenName);  
+                var score = OnSecondButtonPress(requesterName,chosenName);  
 
                 // checks if button was released in 60ms intervals
                 secondButtonReleaseCheck = setInterval(function() {
@@ -74,6 +76,7 @@ app.post('/', function(req, res, next) {
                     clearInterval(secondButtonReleaseCheck);
 
                     console.log('BUTTON -> release (2)');
+                    updateScore(chosenName, score);
                     startTime = 0;
                     endTime = 0;
                     return res.status(200).end();
@@ -88,6 +91,17 @@ app.post('/', function(req, res, next) {
   } 
 });
 
+function updateScore(playerName, playerScore){
+  var newScore = {
+    name: playerName,
+    score: playerScore
+  }
+
+  jsonfile.writeFile(highScoresFile,newScore, function(err){
+    if (err)
+      console.error(err);
+  })
+}
 
 function sendMessage(msgChannel, msgText) {
   slack.webhook({
@@ -180,13 +194,14 @@ function OnSecondButtonPress(requesterName, chosenName) {
   var deltaTime = getDeltaTime();
   var timeString = getTimeString(deltaTime);
   var publicMessage = '@' + chosenName + ' abriu a porta em ' + timeString + '!';
+  sendMessage('#door-channel',publicMessage);
 
-  return sendMessage('#door-channel',publicMessage);
+  return deltaTime;
 }
 
 function getDeltaTime() {
   // get diff time inseconds
-  var deltaTime = (endTime - startTime)/1000;
+  var deltaTime = Math.round((endTime - startTime)/1000);
   console.log('Delta time -> ' + deltaTime);
 
   return deltaTime;
