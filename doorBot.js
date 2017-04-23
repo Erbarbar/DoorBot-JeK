@@ -93,16 +93,18 @@ app.post('/', function(req, res, next) {
 
 function updateScore(playerName, playerScore){
   var highScore;
-  var scores = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
-  for(var s in scores) {
-      console.log(s + ': ' + scores[s]);
-      if (s === playerName && scores[s] > playerScore) {
-        scores[s] = playerScore;
+  var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
+  for(var s in obj.scores) {
+      console.log(obj.scores[s].name + '-> ' + obj.scores[s].score);
+      if (obj.scores[s].name === playerName) {
+        if (obj.scores[s].score > playerScore) {
+          obj.scores[s].score = playerScore;
+        }
         return;
       }
   }
-  scores.name = playerName;
-  scores[playerName] = playerScore;
+  obj.scores[name] = playerName;
+  obj.scores[score] = playerScore;
 
   jsonfile.writeFile(highScoresFile, scores, function(err){
     if (err)
