@@ -97,12 +97,12 @@ function updateScore(playerName, playerScore){
   console.log('updateScore('+playerName+', ' + playerScore+')');
   var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
   for(var i = 0; i < obj.length; i++) {
-      console.log(obj[s].name + '-> ' + obj[s].score);
-      if (obj[s].name === playerName) {
+      console.log(obj[i].name + '-> ' + obj[i].score);
+      if (obj[i].name === playerName) {
         console.log('\nfound name');
-        if (obj[s].score > playerScore) {
-          console.log(obj[s].score + ' > ' + playerScore + '\n');
-          obj[s].score = playerScore;
+        if (obj[i].score > playerScore) {
+          console.log(obj[i].score + ' > ' + playerScore + '\n');
+          obj[i].score = playerScore;
           jsonfile.writeFile(highScoresFile, obj, function(err){
             if (err)
               console.error(err);
