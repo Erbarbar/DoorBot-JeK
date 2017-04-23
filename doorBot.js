@@ -97,7 +97,9 @@ function updateScore(playerName, playerScore){
   for(var s in obj.scores) {
       console.log(obj.scores[s].name + '-> ' + obj.scores[s].score);
       if (obj.scores[s].name === playerName) {
+        console.log('\nfound name');
         if (obj.scores[s].score > playerScore) {
+          console.log(obj.scores[s].score + ' > ' + playerScore + '\n');
           obj.scores[s].score = playerScore;
         }
         return;
