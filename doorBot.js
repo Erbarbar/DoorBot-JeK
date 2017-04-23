@@ -9,6 +9,7 @@ var app = express();
 slack = new Slack();
 var port = 3000; // same port as ngrok
 var highScoresFile = 'HighScores.json';
+var defaultChannel = '#door-channel';
 
 // number of milliseconds elapsed since 1 January 1970 
 var startTime = 0; // when the user is notified
@@ -37,13 +38,19 @@ app.listen(port, function(){
 app.post('/', function(req, res, next) {
 
   var requesterName = req.body.user_name;
-  var channel = req.body.trigger_word;
+  var trigger = req.body.trigger_word;
   var tok = req.body.token;   
   // make sure there are no message loops, and only one user is being timed
   if(requesterName === 'slackbot' || requesterName === 'Door' || startTime != 0 || tok !== token){
     console.log('YOU SHALL NOT PASS!\n');
     return res.status(200).end();
   } else {
+    if (trigger === 'highscore'){
+      showHighScore();
+      return res.status(200).end();
+    }
+
+    var channel = trigger;
     // Turn on red LED (TODO: sound buzzer)
     var chosenName = OnDoorCall(channel, requesterName);
     
@@ -77,8 +84,6 @@ app.post('/', function(req, res, next) {
 
                     console.log('BUTTON -> release (2)');
                     updateScore(chosenName, score);
-                    var newname = getTime();
-                    updateScore(newname,score);
                     startTime = 0;
                     endTime = 0;
                     return res.status(200).end();
@@ -93,15 +98,31 @@ app.post('/', function(req, res, next) {
   } 
 });
 
+function showHighScore(){
+  var highScore = getHighScore();
+  var timeString = getTimeString(highScore.score);
+  var message = '@' + highScore.name + ' tem o melhor tempo (' + timeString + ')!';
+  sendMessage(defaultChannel, message);
+}
+
+function getHighScore(){
+  var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
+  var highScore = obj[0].score;
+  var highScoreIndex = 0;
+  for(var i = 0; i < obj.length; i++) {
+    if (obj[i].score < highScore) {
+      highScore = obj[i].score;
+      highScoreIndex = i;
+    }
+  }
+  return obj[highScoreIndex];
+}
+
 function updateScore(playerName, playerScore){
-  console.log('updateScore('+playerName+', ' + playerScore+')');
   var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
   for(var i = 0; i < obj.length; i++) {
-      console.log(obj[i].name + '-> ' + obj[i].score);
       if (obj[i].name === playerName) {
-        console.log('\nfound name');
         if (obj[i].score > playerScore) {
-          console.log(obj[i].score + ' > ' + playerScore + '\n');
           obj[i].score = playerScore;
           jsonfile.writeFile(highScoresFile, obj, function(err){
             if (err)
@@ -179,7 +200,7 @@ function OnDoorCall(callerChannel, callerName){
   var privateMessage = '@' + callerName + ' pede que abras a porta, por favor!';
   var publicMessage = '@' + chosenName + ' é a tua vez de abrir a porta :heart:';
   sendMessage(channel, privateMessage);
-  sendMessage('#door-channel',publicMessage);
+  sendMessage(defaultChannel, publicMessage);
 
   return chosenName;
 }
@@ -209,7 +230,7 @@ function OnSecondButtonPress(requesterName, chosenName) {
   var deltaTime = getDeltaTime();
   var timeString = getTimeString(deltaTime);
   var publicMessage = '@' + chosenName + ' abriu a porta em ' + timeString + '!';
-  sendMessage('#door-channel',publicMessage);
+  sendMessage(defaultChannel, publicMessage);
 
   return deltaTime;
 }
