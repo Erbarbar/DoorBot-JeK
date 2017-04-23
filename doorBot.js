@@ -101,6 +101,10 @@ function updateScore(playerName, playerScore){
         if (obj.scores[s].score > playerScore) {
           console.log(obj.scores[s].score + ' > ' + playerScore + '\n');
           obj.scores[s].score = playerScore;
+          jsonfile.writeFile(highScoresFile, scores, function(err){
+            if (err)
+              console.error(err);
+          })
         }
         return;
       }
