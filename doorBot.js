@@ -77,7 +77,8 @@ app.post('/', function(req, res, next) {
 
                     console.log('BUTTON -> release (2)');
                     updateScore(chosenName, score);
-                    updateScore(getTime,score);
+                    var newname = getTime();
+                    updateScore(newname,score);
                     startTime = 0;
                     endTime = 0;
                     return res.status(200).end();
