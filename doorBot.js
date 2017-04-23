@@ -101,7 +101,7 @@ function updateScore(playerName, playerScore){
         if (obj.scores[s].score > playerScore) {
           console.log(obj.scores[s].score + ' > ' + playerScore + '\n');
           obj.scores[s].score = playerScore;
-          jsonfile.writeFile(highScoresFile, scores, function(err){
+          jsonfile.writeFile(highScoresFile, obj, function(err){
             if (err)
               console.error(err);
           })
@@ -112,7 +112,7 @@ function updateScore(playerName, playerScore){
   obj.scores[name] = playerName;
   obj.scores[score] = playerScore;
 
-  jsonfile.writeFile(highScoresFile, scores, function(err){
+  jsonfile.writeFile(highScoresFile, obj, function(err){
     if (err)
       console.error(err);
   })
