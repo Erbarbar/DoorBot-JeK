@@ -110,8 +110,8 @@ function updateScore(playerName, playerScore){
         return;
       }
   }
-  obj.scores[name] = playerName;
-  obj.scores[score] = playerScore;
+  obj.scores.name = playerName;
+  obj.scores.score = playerScore;
 
   jsonfile.writeFile(highScoresFile, obj, function(err){
     if (err)
