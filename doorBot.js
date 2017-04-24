@@ -39,6 +39,7 @@ app.post('/', function(req, res, next) {
 
   var requesterName = req.body.user_name;
   var trigger = req.body.trigger_word;
+  trigger = trigger.toLowerCase();
   var tok = req.body.token;   
   // make sure there are no message loops, and only one user is being timed
   if(requesterName === 'slackbot' || requesterName === 'Door' || startTime != 0 || tok !== token){
@@ -98,6 +99,20 @@ app.post('/', function(req, res, next) {
   } 
 });
 
+function showPersonalScore(name){
+  var message = '@' + name + ', não tens nenhum tempo guardado!';
+  var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
+  for (var i = 0; i < obj.length; i++;) {
+    if (obj[i].name === name) {
+      var timeString = getTimeString(obj[i].score);
+      message = '@' + name + ', o teu melhor tempo é ' + timeString + '!';
+      break;
+    }
+  }
+
+  sendMessage(defaultChannel, message);
+}
+
 function showHighScore(){
   var highScore = getHighScore();
   var timeString = getTimeString(highScore.score);
@@ -109,7 +124,7 @@ function getHighScore(){
   var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
   var highScore = obj[0].score;
   var highScoreIndex = 0;
-  for(var i = 0; i < obj.length; i++) {
+  for (var i = 0; i < obj.length; i++) {
     if (obj[i].score < highScore) {
       highScore = obj[i].score;
       highScoreIndex = i;
@@ -120,7 +135,7 @@ function getHighScore(){
 
 function updateScore(playerName, playerScore){
   var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
-  for(var i = 0; i < obj.length; i++) {
+  for (var i = 0; i < obj.length; i++) {
       if (obj[i].name === playerName) {
         if (obj[i].score > playerScore) {
           obj[i].score = playerScore;
@@ -146,7 +161,7 @@ function sendMessage(msgChannel, msgText) {
     username:'HODOR',
     text:msgText
   }, function(err, response) {
-    if(err === null)
+    if (err === null)
       console.log('[MESSAGE]\n' + msgChannel + ' -> ' + msgText);
   });
 }
