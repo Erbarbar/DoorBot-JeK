@@ -102,7 +102,7 @@ app.post('/', function(req, res, next) {
 function showPersonalScore(name){
   var message = '@' + name + ', não tens nenhum tempo guardado!';
   var obj = JSON.parse(fs.readFileSync(highScoresFile, 'utf8'));
-  for (var i = 0; i < obj.length; i++;) {
+  for (var i = 0; i < obj.length; i++) {
     if (obj[i].name === name) {
       var timeString = getTimeString(obj[i].score);
       message = '@' + name + ', o teu melhor tempo é ' + timeString + '!';
