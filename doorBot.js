@@ -50,7 +50,11 @@ app.post('/', function(req, res, next) {
       showHighScore();
       return res.status(200).end();
     }
-
+    
+    if (trigger === 'myscore') {
+      showPersonalScore(requesterName);
+      return res.status(200).end();
+    }
     var channel = trigger;
     // Turn on red LED (TODO: sound buzzer)
     var chosenName = OnDoorCall(channel, requesterName);
@@ -116,7 +120,7 @@ function showPersonalScore(name){
 function showHighScore(){
   var highScore = getHighScore();
   var timeString = getTimeString(highScore.score);
-  var message = '@' + highScore.name + ' tem o melhor tempo (' + timeString + ')!';
+  var message = '@' + highScore.name + ' tem o melhor tempo:' + timeString + '!';
   sendMessage(defaultChannel, message);
 }
 
