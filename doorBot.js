@@ -9,7 +9,7 @@ var app = express();
 slack = new Slack();
 var port = 3000; // same port as ngrok
 var highScoresFile = 'HighScores.json';
-var defaultChannel = '#door-channel';
+var defaultChannel = '#b3';
 
 // number of milliseconds elapsed since 1 January 1970 
 var startTime = 0; // when the user is notified
@@ -44,6 +44,8 @@ app.post('/', function(req, res, next) {
   // make sure there are no message loops, and only one user is being timed
   if(requesterName === 'slackbot' || requesterName === 'Door' || startTime != 0 || tok !== token){
     console.log('YOU SHALL NOT PASS!\n');
+    console.log("tok=" + tok + "\nTOKEN=" + token);
+    console.log("requesterName=" + requesterName);
     return res.status(200).end();
   } else {
     if (trigger === 'highscore'){
