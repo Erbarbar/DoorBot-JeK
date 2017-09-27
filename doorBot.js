@@ -4,6 +4,7 @@ var gpio       = require('gpio');
 var Slack      = require('slack-node');
 var fs         = require('fs');
 var jsonfile   = require('jsonfile'); 
+var player     = require('play-sound')(opts = {});
 
 var app = express();
 slack = new Slack();
